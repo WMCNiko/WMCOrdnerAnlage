@@ -1,0 +1,52 @@
+name: Create WAMOCON App
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: 'App ID (01-99)'
+        required: true
+        default: '01'
+        type: string
+      
+      app_name:
+        description: 'App Name (e.g., LogistikPlaner)'
+        required: true
+        type: string
+
+jobs:
+  create-app:
+    runs-on: [self-hosted, windows-latest]
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    
+    - name: Display Inputs
+      shell: powershell
+      run: |
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "  WAMOCON App Creation" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "App ID: ${{ github.event.inputs.app_id }}" -ForegroundColor Yellow
+        Write-Host "App Name: ${{ github.event.inputs.app_name }}" -ForegroundColor Yellow
+        Write-Host ""
+    
+    - name: Run App Creation Script
+      shell: powershell
+      run: |
+        $AppID = "${{ github.event.inputs.app_id }}"
+        $AppName = "${{ github.event.inputs.app_name }}"
+        
+        & .\scripts\create-app-FINAL.ps1 -AppID "$AppID" -AppName "$AppName"
+        
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host ""
+          Write-Host "OK: Script execution successful!" -ForegroundColor Green
+          exit 0
+        } else {
+          Write-Host ""
+          Write-Host "ERROR: Script execution failed!" -ForegroundColor Red
+          exit 1
+        }
